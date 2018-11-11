@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/campsiteReservations/campsiteReservations.iml" filepath="$PROJECT_DIR$/campsiteReservations/campsiteReservations.iml" />
+      <module fileurl="file://$PROJECT_DIR$/campsiteUsers/campsiteUsers.iml" filepath="$PROJECT_DIR$/campsiteUsers/campsiteUsers.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/pacificCampsite.iml" filepath="$PROJECT_DIR$/.idea/pacificCampsite.iml" />
+    </modules>
+  </component>
+</project>
