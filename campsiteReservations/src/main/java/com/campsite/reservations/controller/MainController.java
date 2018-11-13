@@ -31,7 +31,7 @@ public class MainController {
      * Shows statistic on an easy way.
      * @return ResponseEntity
      */
-    @RequestMapping(method = RequestMethod.GET, value = "/status")
+    @RequestMapping(method = RequestMethod.GET, value = "/reservations/status")
     public ResponseEntity<Object> status() {
         Map map = new HashMap<String, String >();
         map.put("campsiteModuleName", moduleName);
