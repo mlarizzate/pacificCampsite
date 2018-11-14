@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Controller
+@RequestMapping(value = {""})
 public class MainController {
 
     @Autowired
@@ -22,7 +23,6 @@ public class MainController {
     @Autowired
     DataSource dataSource;
 
-    @Autowired
     public MainController() {
 
     }
@@ -31,7 +31,7 @@ public class MainController {
      * Shows statistic on an easy way.
      * @return ResponseEntity
      */
-    @RequestMapping(method = RequestMethod.GET, value = "/reservations/status")
+    @RequestMapping(method = RequestMethod.GET, value = "/status")
     public ResponseEntity<Object> status() {
         Map map = new HashMap<String, String >();
         map.put("campsiteModuleName", moduleName);
