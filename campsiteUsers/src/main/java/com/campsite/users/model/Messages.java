@@ -20,4 +20,5 @@ public class Messages {
     public static String EXCEPTION_UNEXPECTED_VERB = "Unexpected Verb Strategy Received";
     public static String EXCEPTION_USER_NOT_EXISTS = "Received User does not exists";
     public static String EXCEPTION_USER_ALREADY_EXISTS = "Received User already exists";
+    public static String BUSINESS_ERROR="Business Error";
 }

@@ -11,6 +11,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="campsiteCore" target="1.6" />
       <module name="campsiteReservations" target="1.8" />
       <module name="campsiteUsers" target="1.8" />
     </bytecodeTargetLevel>

@@ -24,11 +24,7 @@ public class UserService {
     public User updateUser(User user) throws UserNotExistException {
         User dBUser = userRepository.findById(user.getId());
         if(dBUser== null) throw new UserNotExistException();
-        if(dBUser.equals(user) && (dBUser.hashCode() == user.hashCode())){
             userRepository.save(user);
-        }else{
-            throw new UserNotExistException();
-        }
         return user;
     }
 
