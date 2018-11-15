@@ -2,6 +2,7 @@ package com.campsite.reservations.controller;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -18,6 +19,7 @@ import java.util.Map;
 public class MainController {
 
     @Autowired
+    @Qualifier("moduleName")
     private String moduleName;
 
     @Autowired

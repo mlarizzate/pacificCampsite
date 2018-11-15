@@ -7,6 +7,8 @@ import com.campsite.reservations.repository.PlaceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class PlaceService {
     @Autowired
@@ -24,11 +26,7 @@ public class PlaceService {
     public Place update(Place place) throws PlaceNotExistException {
         Place dBUser = repository.findById(place.getId());
         if(dBUser== null) throw new PlaceNotExistException();
-        if(dBUser.equals(place) && (dBUser.hashCode() == place.hashCode())){
             repository.save(place);
-        }else{
-            throw new PlaceNotExistException();
-        }
         return place;
     }
 
@@ -46,5 +44,9 @@ public class PlaceService {
         }else{
             return dBUser;
         }
+    }
+
+    public List<Place> getAll(){
+        return repository.findAll();
     }
 }

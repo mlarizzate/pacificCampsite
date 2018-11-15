@@ -9,10 +9,10 @@ import java.util.List;
 
 public class CampsitePlaceGetRequestValidatorImpl implements CampsiteRequestValidator<Place> {
     @Override
-    public List<String> validate(Place user) {
+    public List<String> validate(Place place) {
         List<String> errors = new ArrayList<>();
 
-        if(user.getId() == 0) errors.add(Messages.PLACE_GET_EXPECTED_ID_NOT_FOUND);
+        if(place.getId() == 0) errors.add(Messages.PLACE_GET_EXPECTED_ID_NOT_FOUND);
 
         return errors;
     }

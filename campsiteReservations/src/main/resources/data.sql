@@ -1,1 +1,0 @@
-INSERT INTO places (place_position) VALUES ('Location - A');

@@ -1,12 +1,11 @@
 package com.campsite.reservations.controller;
 
-import com.campsite.reservations.exception.CampsiteException;
 import com.campsite.reservations.exception.PlaceNotExistException;
 import com.campsite.reservations.exception.UnexpectedVerbStrategyException;
 import com.campsite.reservations.manager.PlaceManager;
 import com.campsite.reservations.model.Messages;
 import com.campsite.reservations.model.Place;
-import com.campsite.reservations.response.CampsiteResponse;
+import com.campsite.reservations.response.CampsiteErrorResponse;
 import com.campsite.reservations.strategy.VerbStrategy;
 import com.campsite.reservations.validate.CampsiteRequestValidator;
 import com.campsite.reservations.validate.places.CampsitePlaceDeleteRequestValidatorImpl;
@@ -22,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -31,100 +31,92 @@ public class PlacesController {
     private PlaceManager manager;
 
     @RequestMapping(method = RequestMethod.POST, value = "/")
-    public ResponseEntity<CampsiteResponse> create(@RequestBody Place place) {
+    public ResponseEntity<Object> create(@RequestBody Place place) {
         CampsiteRequestValidator requestValidator = new CampsitePlacePostRequestValidatorImpl();
         List<String> errors = requestValidator.validate(place);
-        CampsiteResponse campsiteResponse = null;
-        Place responsePlace = null;
         try {
             if(errors.isEmpty()){
-                responsePlace =  manager.manage(VerbStrategy.POST, place);
-            }
-        } catch (CampsiteException e) {
-            errors.add(e.getMessage());
-        } catch (Exception e){
-            return new ResponseEntity<>(new CampsiteResponse(true,e.toString(),null), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
-        if(errors.isEmpty()){
-            campsiteResponse = new CampsiteResponse(false, Messages.PLACE_POST_SUCCESSFULLY_CREATED, responsePlace);
-        }else{
-            campsiteResponse = new CampsiteResponse(true,errors.toString(),place);
-        }
-        return new ResponseEntity<>(campsiteResponse, campsiteResponse.getError() ? HttpStatus.BAD_REQUEST : HttpStatus.OK);
-
-    }
-    @RequestMapping(method = RequestMethod.PUT, value = "/")
-    public ResponseEntity<CampsiteResponse> update(@RequestBody Place place) {
-        CampsiteRequestValidator requestValidator = new CampsitePlacePutRequestValidatorImpl();
-        List<String> errors = requestValidator.validate(place);
-        CampsiteResponse campsiteResponse = null;
-        Place responsePlace = null;
-        try {
-            if(errors.isEmpty()){
-                responsePlace =  manager.manage(VerbStrategy.PUT, place);
+                Place responsePlace =  manager.manage(VerbStrategy.POST, place);
+                return new ResponseEntity<>(responsePlace, HttpStatus.OK);
+            }else{
+                return handleErors(Messages.BUSINESS_ERROR,errors, HttpStatus.BAD_REQUEST);
             }
         } catch (UnexpectedVerbStrategyException| PlaceNotExistException e) {
             errors.add(e.getMessage());
+            return handleErors(Messages.BUSINESS_ERROR,errors, HttpStatus.BAD_REQUEST);
         } catch (Exception e){
-            return new ResponseEntity<>(new CampsiteResponse(true,e.toString(),null), HttpStatus.INTERNAL_SERVER_ERROR);
+            return handleExceptions(e,HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        if(errors.isEmpty()){
-            campsiteResponse = new CampsiteResponse(false, Messages.PLACE_PUT_UPDATE_SUCCESSFULLY_PROCESSED, responsePlace);
-        }else{
-            campsiteResponse = new CampsiteResponse(true,errors.toString(),null);
+    }
+    @RequestMapping(method = RequestMethod.PUT, value = "/")
+    public ResponseEntity<Object> update(@RequestBody Place place) {
+        CampsiteRequestValidator requestValidator = new CampsitePlacePutRequestValidatorImpl();
+        List<String> errors = requestValidator.validate(place);
+        try {
+            if(errors.isEmpty()){
+                Place responsePlace =  manager.manage(VerbStrategy.PUT, place);
+                return new ResponseEntity<>(responsePlace, HttpStatus.OK);
+            }else{
+                return handleErors(Messages.BUSINESS_ERROR,errors, HttpStatus.BAD_REQUEST);
+            }
+        } catch (UnexpectedVerbStrategyException| PlaceNotExistException e) {
+            errors.add(e.getMessage());
+            return handleErors(Messages.BUSINESS_ERROR,errors, HttpStatus.BAD_REQUEST);
+        } catch (Exception e){
+            return handleExceptions(e,HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>(campsiteResponse, campsiteResponse.getError() ? HttpStatus.BAD_REQUEST : HttpStatus.OK);
     }
     @RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
-    public ResponseEntity<CampsiteResponse> delete(@PathVariable long id) {
+    public ResponseEntity<Object> delete(@PathVariable long id) {
         CampsiteRequestValidator requestValidator = new CampsitePlaceDeleteRequestValidatorImpl();
         Place place = new Place();
         place.setId(id);
         List<String> errors = requestValidator.validate(place);
-        CampsiteResponse campsiteResponse = null;
-        Place responsePlace = null;
         try {
             if(errors.isEmpty()){
-                responsePlace =  manager.manage(VerbStrategy.DELETE, place);
+                Place responsePlace =  manager.manage(VerbStrategy.DELETE, place);
+                return new ResponseEntity<>(responsePlace, HttpStatus.OK);
+            }else{
+                return handleErors(Messages.BUSINESS_ERROR,errors, HttpStatus.BAD_REQUEST);
             }
-        } catch (UnexpectedVerbStrategyException | PlaceNotExistException e) {
+        } catch (UnexpectedVerbStrategyException| PlaceNotExistException e) {
             errors.add(e.getMessage());
+            return handleErors(Messages.BUSINESS_ERROR,errors, HttpStatus.BAD_REQUEST);
         } catch (Exception e){
-            return new ResponseEntity<>(new CampsiteResponse(true,e.toString(),null), HttpStatus.INTERNAL_SERVER_ERROR);
+            return handleExceptions(e,HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-        if(errors.isEmpty()){
-            campsiteResponse = new CampsiteResponse(false, Messages.PLACE_DELETE_DELLETED_SUCCESSFULLY, responsePlace);
-        }else{
-            campsiteResponse = new CampsiteResponse(true,errors.toString(),null);
-        }
-        return new ResponseEntity<>(campsiteResponse, campsiteResponse.getError() ? HttpStatus.BAD_REQUEST : HttpStatus.OK);
     }
     @RequestMapping(method = RequestMethod.GET, value = "/{id}")
-    public ResponseEntity<CampsiteResponse> get(@PathVariable long id) {
+    public ResponseEntity<Object> get(@PathVariable long id) {
         CampsiteRequestValidator requestValidator = new CampsitePlaceGetRequestValidatorImpl();
         Place place = new Place();
         place.setId(id);
         List<String> errors = requestValidator.validate(place);
-        CampsiteResponse campsiteResponse = null;
-        Place responsePlace = null;
         try {
             if(errors.isEmpty()){
-                responsePlace =  manager.manage(VerbStrategy.GET, place);
+                Place responsePlace =  manager.manage(VerbStrategy.GET, place);
+                return new ResponseEntity<>(responsePlace, HttpStatus.OK);
+            }else{
+                return handleErors(Messages.BUSINESS_ERROR,errors, HttpStatus.BAD_REQUEST);
             }
         } catch (UnexpectedVerbStrategyException| PlaceNotExistException e) {
             errors.add(e.getMessage());
+            return handleErors(Messages.BUSINESS_ERROR,errors, HttpStatus.BAD_REQUEST);
         } catch (Exception e){
-            return new ResponseEntity<>(new CampsiteResponse(true,e.toString(),null), HttpStatus.INTERNAL_SERVER_ERROR);
+            return handleExceptions(e,HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
 
-        if(errors.isEmpty()){
-            campsiteResponse = new CampsiteResponse(false, Messages.PLACE_GET_FOUND_SUCCESSFULLY, responsePlace);
-        }else{
-            campsiteResponse = new CampsiteResponse(true,errors.toString(),null);
-        }
-        return new ResponseEntity<>(campsiteResponse, campsiteResponse.getError() ? HttpStatus.BAD_REQUEST : HttpStatus.OK);
+    protected ResponseEntity<Object> handleExceptions(Exception ex,HttpStatus status) {
+        List<String> errors = new ArrayList<>();
+        errors.add(ex.getMessage());
+        CampsiteErrorResponse campsiteErrorResponse = new CampsiteErrorResponse(status, ex.getLocalizedMessage(), errors);
+        return new ResponseEntity<>(campsiteErrorResponse, status);
+    }
+
+    protected ResponseEntity<Object> handleErors(String message, List<String> errors,HttpStatus status) {
+        CampsiteErrorResponse campsiteErrorResponse = new CampsiteErrorResponse(status, message, errors);
+        return new ResponseEntity<>(campsiteErrorResponse, status);
     }
 }
