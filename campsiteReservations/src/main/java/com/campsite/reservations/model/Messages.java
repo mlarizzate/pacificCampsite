@@ -31,7 +31,8 @@ public class Messages {
     public static String RESERVATION_GET_FOUND_SUCCESSFULLY ="User successfully found";
     public static String RESERVATION_POST_SUCCESSFULLY_CREATED="Place successfully created";
     public static String RESERVATION_PUT_UPDATE_SUCCESSFULLY_PROCESSED="Place successfully updated";
-    public static String RESERVATION_OVERLAPED_DATES_FOR_REQUESTED="Overlapes Dates for requested reservation";
-
+    public static String RESERVATION_OVERLAPED_DATES_FOR_REQUESTED="Overlaped Dates for requested reservation";
+    public static String RESERVATION_GET_ALL_DATEFROM_EXPECTED_NOT_FOUND="Expected date from not found";
+    public static String RESERVATION_GET_ALL_DATETO_EXPECTED_NOT_FOUND="Expected date to not found";
     public static String BUSINESS_ERROR="Business Error";
 }

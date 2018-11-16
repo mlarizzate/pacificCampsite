@@ -1,16 +1,23 @@
 package com.campsite.reservations.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
 
 @Entity
 @Table(name = "reservations")
-public class Reservation {
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+public class Reservation implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
+    @Version
+    @Column(name = "version")
+    private Long version;
 
     @Column(name = "reservation_code")
     private String reservationCode;
@@ -23,9 +30,11 @@ public class Reservation {
     private Place place;
 
     @Column(name = "date_from")
+    @Temporal(TemporalType.DATE)
     private Date dateFrom;
 
     @Column(name = "date_to")
+    @Temporal(TemporalType.DATE)
     private Date dateTo;
 
     public long getId() {
@@ -73,6 +82,23 @@ public class Reservation {
     }
 
     public void setDateTo(Date dateTo) {
+        this.dateTo = dateTo;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
+    }
+
+    public Reservation() {
+    }
+
+    public Reservation(Place place, Date dateFrom, Date dateTo) {
+        this.place = place;
+        this.dateFrom = dateFrom;
         this.dateTo = dateTo;
     }
 

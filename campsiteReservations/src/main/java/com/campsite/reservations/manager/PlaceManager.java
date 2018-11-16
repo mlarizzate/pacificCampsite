@@ -9,15 +9,16 @@ import com.campsite.reservations.strategy.places.PlaceActionStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Collection;
+
 @Component
 public class PlaceManager {
     @Autowired
     PlaceService service;
 
-    public Place manage(VerbStrategy verbStrategy, Place place) throws CampsiteException {
+    public Collection<Place> manage(VerbStrategy verbStrategy, Place place) throws CampsiteException {
         PlaceActionStrategy userActionStrategy = AbstractPlaceStrategy.resolveStrategy(verbStrategy, service);
-        Place dbPlace = userActionStrategy.action(place);
-        return dbPlace;
+        return userActionStrategy.action(place);
 
     }
 }

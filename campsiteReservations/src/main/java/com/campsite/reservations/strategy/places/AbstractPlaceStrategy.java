@@ -26,6 +26,9 @@ public abstract class AbstractPlaceStrategy implements PlaceActionStrategy {
             case GET:
                 actionStrategy = new PlaceGetStrategy(service);
                 break;
+            case GETALL:
+                actionStrategy = new PlaceGetAllStrategy(service);
+                break;
 
             default:
                 throw new UnexpectedVerbStrategyException();

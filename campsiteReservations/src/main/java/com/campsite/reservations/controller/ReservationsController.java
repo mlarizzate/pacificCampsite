@@ -10,20 +10,17 @@ import com.campsite.reservations.response.CampsiteErrorResponse;
 import com.campsite.reservations.response.CampsiteResponse;
 import com.campsite.reservations.strategy.VerbStrategy;
 import com.campsite.reservations.validate.CampsiteRequestValidator;
-import com.campsite.reservations.validate.reservations.CampsiteReservationDeleteRequestValidatorImpl;
-import com.campsite.reservations.validate.reservations.CampsiteReservationGetRequestValidatorImpl;
-import com.campsite.reservations.validate.reservations.CampsiteReservationPostRequestValidatorImpl;
-import com.campsite.reservations.validate.reservations.CampsiteReservationPutRequestValidatorImpl;
+import com.campsite.reservations.validate.reservations.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 @Controller
@@ -38,8 +35,8 @@ public class ReservationsController {
         List<String> errors = requestValidator.validate(reservation);
         try {
             if(errors.isEmpty()){
-                Reservation responsePlace =  manager.manage(VerbStrategy.POST, reservation);
-                return new ResponseEntity<>(responsePlace, HttpStatus.OK);
+                Collection<Reservation> responseReservations =  manager.manage(VerbStrategy.POST, reservation);
+                return new ResponseEntity<>(responseReservations, HttpStatus.OK);
             }else{
                 return handleErors(Messages.BUSINESS_ERROR,errors, HttpStatus.BAD_REQUEST);
             }
@@ -56,8 +53,8 @@ public class ReservationsController {
         List<String> errors = requestValidator.validate(reservation);
         try {
             if(errors.isEmpty()){
-                Reservation responsePlace =  manager.manage(VerbStrategy.PUT, reservation);
-                return new ResponseEntity<>(responsePlace, HttpStatus.OK);
+                Collection<Reservation> responseReservations =  manager.manage(VerbStrategy.PUT, reservation);
+                return new ResponseEntity<>(responseReservations, HttpStatus.OK);
             }else{
                 return handleErors(Messages.BUSINESS_ERROR,errors, HttpStatus.BAD_REQUEST);
             }
@@ -76,8 +73,8 @@ public class ReservationsController {
         List<String> errors = requestValidator.validate(reservation);
         try {
             if(errors.isEmpty()){
-                Reservation responsePlace =  manager.manage(VerbStrategy.DELETE, reservation);
-                return new ResponseEntity<>(responsePlace, HttpStatus.OK);
+                Collection<Reservation> responseReservations =  manager.manage(VerbStrategy.DELETE, reservation);
+                return new ResponseEntity<>(responseReservations, HttpStatus.OK);
             }else{
                 return handleErors(Messages.BUSINESS_ERROR,errors, HttpStatus.BAD_REQUEST);
             }
@@ -96,8 +93,8 @@ public class ReservationsController {
         List<String> errors = requestValidator.validate(reservation);
         try {
             if(errors.isEmpty()){
-                Reservation responsePlace =  manager.manage(VerbStrategy.GET, reservation);
-                return new ResponseEntity<>(responsePlace, HttpStatus.OK);
+                Collection<Reservation> responseReservations =  manager.manage(VerbStrategy.GET, reservation);
+                return new ResponseEntity<>(responseReservations, HttpStatus.OK);
             }else{
                 return handleErors(Messages.BUSINESS_ERROR,errors, HttpStatus.BAD_REQUEST);
             }
@@ -109,6 +106,47 @@ public class ReservationsController {
         }
     }
 
+    @RequestMapping(method = RequestMethod.GET, value = "/all")
+    public ResponseEntity<Object> getAll() {
+        CampsiteRequestValidator requestValidator = new CampsiteReservationGetAllRequestValidatorImpl();
+        Reservation reservation = new Reservation();
+        List<String> errors = requestValidator.validate(reservation);
+        try {
+            if(errors.isEmpty()){
+                Collection<Reservation> responseReservations =  manager.manage(VerbStrategy.GETALL, reservation);
+                return new ResponseEntity<>(responseReservations, HttpStatus.OK);
+            }else{
+                return handleErors(Messages.BUSINESS_ERROR,errors, HttpStatus.BAD_REQUEST);
+            }
+        } catch (CampsiteException e) {
+            errors.add(e.getMessage());
+            return handleErors(Messages.BUSINESS_ERROR,errors, HttpStatus.BAD_REQUEST);
+        } catch (Exception e){
+            return handleExceptions(e,HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @RequestMapping(method = RequestMethod.GET, value = "/available")
+    public ResponseEntity<Object> getAVailable(@RequestParam("dateFrom") @DateTimeFormat(pattern="yyyy-MM-dd") Date dateFrom,
+                                               @RequestParam("dateTo") @DateTimeFormat(pattern="yyyy-MM-dd") Date dateTo) {
+        CampsiteRequestValidator requestValidator = new CampsiteReservationGetAllRequestValidatorImpl();
+        Reservation reservation = new Reservation();
+        reservation.setDateFrom(dateFrom);
+        reservation.setDateTo(dateTo);
+        List<String> errors = requestValidator.validate(reservation);
+        try {
+            if(errors.isEmpty()){
+                Collection<Reservation> responseReservations =  manager.manage(VerbStrategy.GETAVAILABLE, reservation);
+                return new ResponseEntity<>(responseReservations, HttpStatus.OK);
+            }else{
+                return handleErors(Messages.BUSINESS_ERROR,errors, HttpStatus.BAD_REQUEST);
+            }
+        } catch (CampsiteException e) {
+            errors.add(e.getMessage());
+            return handleErors(Messages.BUSINESS_ERROR,errors, HttpStatus.BAD_REQUEST);
+        } catch (Exception e){
+            return handleExceptions(e,HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
     protected ResponseEntity<Object> handleExceptions(Exception ex,HttpStatus status) {
         List<String> errors = new ArrayList<>();
         errors.add(ex.getMessage());

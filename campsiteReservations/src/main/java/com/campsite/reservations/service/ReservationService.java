@@ -4,13 +4,14 @@ import com.campsite.reservations.exception.CampsiteException;
 import com.campsite.reservations.exception.OverlapedDatesForRequestedReservationException;
 import com.campsite.reservations.exception.PlaceAlreadyReservedForGivenRangeException;
 import com.campsite.reservations.exception.ReservationNotExistsException;
+import com.campsite.reservations.model.Place;
 import com.campsite.reservations.model.Reservation;
 import com.campsite.reservations.repository.ReservationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ReservationService {
@@ -20,26 +21,66 @@ public class ReservationService {
     @Autowired
     private PlaceService placeService;
 
+    private Collection<Reservation> getOverlapedReservations(Date from, Date to){
+        //gets the overlaped from and to
+        Collection<Reservation> overlapedDateFrom = repository.findByDateFromBetween(from,to);
+        Collection<Reservation> overlapedDateTo = repository.findByDateToBetween(from,to);
+
+        //merges both lists
+        overlapedDateFrom.addAll(overlapedDateTo);
+
+        //create a new collection without duplicates
+        Collection<Reservation> overlapedReservations = overlapedDateFrom.stream().distinct().collect(Collectors.toList());
+        return overlapedReservations;
+    }
+
     public Boolean isRangeFree(Date from, Date to){
-        List <Reservation> overlapedReservations = repository.findOverlapings(from,to);
-        if(overlapedReservations.isEmpty()){
+        if(this.getOverlapedReservations(from, to).size() == 0){
             return true;
         }
         return false;
     }
-    public Boolean isRangeFreeByPlace(long placeId, Date from, Date to){
-        List <Reservation> overlapedReservations = repository.findOverlapingsByPlace(from,to, placeId);
-        if(overlapedReservations.isEmpty()){
-            return true;
+    public Collection<Reservation> getOverlapedReservationsByPlaceId(long placeId, Date from, Date to) {
+        //gets all places from DB
+        Collection<Place> allPlaces = placeService.getAll();
+
+        //gets all reservations  for range
+        Collection<Reservation> overlapedReservations = this.getOverlapedReservations(from, to);
+        if (overlapedReservations.size() == 0) {
+            return Collections.emptyList();
         }
-        return false;
+
+        //filters reservations by place id
+        Collection<Reservation> overlapedReservationsByPlace = overlapedReservations.stream().filter(reservation -> reservation.getPlace().getId() == placeId).collect(Collectors.toList());
+
+        return overlapedReservationsByPlace;
+    }
+
+    public Collection<Place> getFreePlacesByRange(Date from, Date to){
+            //gets all reservations  for range
+            Collection<Reservation> overlapedReservations =this.getOverlapedReservations(from, to);
+
+            //gets reserved places
+            Collection<Place> reservedPlaces = new ArrayList<>();
+            overlapedReservations.stream().forEach(reservation -> reservedPlaces.add(reservation.getPlace()));
+
+            //gets all places from DB
+            Collection<Place> allPlaces = placeService.getAll();
+
+            //removes all reserved place to gets the free places
+            allPlaces.removeAll(reservedPlaces);
+
+            return allPlaces;
     }
     public Reservation addNew(Reservation reservation) throws CampsiteException {
         //validate if exists
         if(repository.findByPlaceAndDateFromAndDateTo(reservation.getPlace(),reservation.getDateFrom(),reservation.getDateTo()) != null){
             throw new PlaceAlreadyReservedForGivenRangeException();
         }
-        if(!this.isRangeFree(reservation.getDateFrom(),reservation.getDateTo())){
+
+        Collection<Reservation> overlapedReservationsByPlaceId = this.getOverlapedReservationsByPlaceId(reservation.getPlace().getId(),reservation.getDateFrom(),reservation.getDateTo());
+
+        if(overlapedReservationsByPlaceId.size() > 0){
             throw new OverlapedDatesForRequestedReservationException();
         }
         return repository.save(reservation);
@@ -70,7 +111,7 @@ public class ReservationService {
     }
 
 
-    public List<Reservation> getAll(){
+    public Collection<Reservation> getAll(Reservation reservation){
         return repository.findAll();
     }
 }

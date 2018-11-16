@@ -10,6 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import java.util.Collection;
+import java.util.Collections;
+
 @Component
 public class ReservationManager {
     @Autowired
@@ -39,10 +42,8 @@ public class ReservationManager {
     @Autowired
     private ReservationService service;
 
-    public Reservation manage(VerbStrategy verbStrategy, Reservation reservation) throws CampsiteException {
+    public Collection<Reservation> manage(VerbStrategy verbStrategy, Reservation reservation) throws CampsiteException {
         ReservationActionStrategy userActionStrategy = AbstractReservationStrategy.resolveStrategy(verbStrategy, service);
-        Reservation dbReservation = userActionStrategy.action(reservation);
-        return dbReservation;
-
+        return userActionStrategy.action(reservation);
     }
 }

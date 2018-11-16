@@ -7,6 +7,9 @@ import com.campsite.reservations.repository.PlaceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -14,39 +17,48 @@ public class PlaceService {
     @Autowired
     private PlaceRepository repository;
 
-    public Place addNew(Place place) throws PlaceAlreadyExistsException {
+    public Collection<Place> addNew(Place place) throws PlaceAlreadyExistsException {
+        Collection<Place> dbPlaces = new ArrayList<>();
+
         //validate if exists
         if(repository.findByPlacePosition(place.getPlacePosition()) != null){
             throw new PlaceAlreadyExistsException();
         }else{
-            return repository.save(place);
+            repository.save(place);
+            dbPlaces.add(place);
+            return dbPlaces;
         }
     }
 
-    public Place update(Place place) throws PlaceNotExistException {
-        Place dBUser = repository.findById(place.getId());
-        if(dBUser== null) throw new PlaceNotExistException();
-            repository.save(place);
-        return place;
+    public Collection<Place> update(Place place) throws PlaceNotExistException {
+        Collection<Place> dbPlaces = new ArrayList<>();
+        Place dBPlace = repository.findById(place.getId());
+        if(dBPlace== null) throw new PlaceNotExistException();
+        repository.save(place);
+        dbPlaces.add(place);
+        return dbPlaces;
     }
 
-    public Place remove(Place user) throws PlaceNotExistException {
-        Place dBUser = repository.findById(user.getId());
-        if(dBUser== null) throw new PlaceNotExistException();
-        repository.delete(user);
-        return dBUser;
+    public Collection<Place> remove(Place place) throws PlaceNotExistException {
+        Collection<Place> dbPlaces = new ArrayList<>();
+        Place dbPlace = repository.findById(place.getId());
+        if(dbPlace == null) throw new PlaceNotExistException();
+        repository.delete(place);
+        dbPlaces.add(place);
+        return dbPlaces;
     }
 
-    public Place get(Place user) throws PlaceNotExistException {
-        Place dBUser = repository.findById(user.getId());
-        if(dBUser== null){
+    public Collection<Place> get(Place place) throws PlaceNotExistException {
+        Collection<Place> dbPlaces = new ArrayList<>();
+        dbPlaces.add(repository.findById(place.getId()));
+        if(dbPlaces.size() == 0 ){
             throw new PlaceNotExistException();
         }else{
-            return dBUser;
+            return dbPlaces;
         }
     }
 
-    public List<Place> getAll(){
+    public Collection<Place> getAll(){
         return repository.findAll();
     }
 }

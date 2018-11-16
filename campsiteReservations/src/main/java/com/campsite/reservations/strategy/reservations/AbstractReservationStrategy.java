@@ -24,6 +24,12 @@ public abstract class AbstractReservationStrategy implements ReservationActionSt
             case PUT:
                 actionStrategy = new ReservationPutStrategy(service);
                 break;
+            case GETALL:
+                actionStrategy = new ReservationGetAllStrategy(service);
+                break;
+            case GETAVAILABLE:
+                actionStrategy = new ReservationGetAvailableStrategy(service);
+                break;
             case GET:
                 actionStrategy = new ReservationGetStrategy(service);
                 break;

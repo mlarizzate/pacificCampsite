@@ -4,5 +4,7 @@ public enum VerbStrategy {
     POST,
     PUT,
     DELETE,
+    GETALL,
+    GETAVAILABLE,
     GET;
 }

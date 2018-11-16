@@ -1,11 +1,15 @@
 package com.campsite.reservations.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
 @Table(name = "places")
-public class Place {
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+public class Place implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
@@ -32,15 +36,8 @@ public class Place {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
         Place place = (Place) o;
         return getId() == place.getId();
-    }
-
-    @Override
-    public int hashCode() {
-
-        return Objects.hash(getId());
     }
 
     @Override

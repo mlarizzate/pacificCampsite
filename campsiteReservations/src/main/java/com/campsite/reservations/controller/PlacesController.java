@@ -1,5 +1,6 @@
 package com.campsite.reservations.controller;
 
+import com.campsite.reservations.exception.CampsiteException;
 import com.campsite.reservations.exception.PlaceNotExistException;
 import com.campsite.reservations.exception.UnexpectedVerbStrategyException;
 import com.campsite.reservations.manager.PlaceManager;
@@ -8,10 +9,7 @@ import com.campsite.reservations.model.Place;
 import com.campsite.reservations.response.CampsiteErrorResponse;
 import com.campsite.reservations.strategy.VerbStrategy;
 import com.campsite.reservations.validate.CampsiteRequestValidator;
-import com.campsite.reservations.validate.places.CampsitePlaceDeleteRequestValidatorImpl;
-import com.campsite.reservations.validate.places.CampsitePlaceGetRequestValidatorImpl;
-import com.campsite.reservations.validate.places.CampsitePlacePostRequestValidatorImpl;
-import com.campsite.reservations.validate.places.CampsitePlacePutRequestValidatorImpl;
+import com.campsite.reservations.validate.places.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Controller
@@ -36,8 +35,8 @@ public class PlacesController {
         List<String> errors = requestValidator.validate(place);
         try {
             if(errors.isEmpty()){
-                Place responsePlace =  manager.manage(VerbStrategy.POST, place);
-                return new ResponseEntity<>(responsePlace, HttpStatus.OK);
+                Collection<Place> responsePlaces =  manager.manage(VerbStrategy.POST, place);
+                return new ResponseEntity<>(responsePlaces, HttpStatus.OK);
             }else{
                 return handleErors(Messages.BUSINESS_ERROR,errors, HttpStatus.BAD_REQUEST);
             }
@@ -55,8 +54,8 @@ public class PlacesController {
         List<String> errors = requestValidator.validate(place);
         try {
             if(errors.isEmpty()){
-                Place responsePlace =  manager.manage(VerbStrategy.PUT, place);
-                return new ResponseEntity<>(responsePlace, HttpStatus.OK);
+                Collection<Place> responsePlaces =  manager.manage(VerbStrategy.PUT, place);
+                return new ResponseEntity<>(responsePlaces, HttpStatus.OK);
             }else{
                 return handleErors(Messages.BUSINESS_ERROR,errors, HttpStatus.BAD_REQUEST);
             }
@@ -75,8 +74,8 @@ public class PlacesController {
         List<String> errors = requestValidator.validate(place);
         try {
             if(errors.isEmpty()){
-                Place responsePlace =  manager.manage(VerbStrategy.DELETE, place);
-                return new ResponseEntity<>(responsePlace, HttpStatus.OK);
+                Collection<Place> responsePlaces =  manager.manage(VerbStrategy.DELETE, place);
+                return new ResponseEntity<>(responsePlaces, HttpStatus.OK);
             }else{
                 return handleErors(Messages.BUSINESS_ERROR,errors, HttpStatus.BAD_REQUEST);
             }
@@ -95,8 +94,8 @@ public class PlacesController {
         List<String> errors = requestValidator.validate(place);
         try {
             if(errors.isEmpty()){
-                Place responsePlace =  manager.manage(VerbStrategy.GET, place);
-                return new ResponseEntity<>(responsePlace, HttpStatus.OK);
+                Collection<Place> responsePlaces =  manager.manage(VerbStrategy.GET, place);
+                return new ResponseEntity<>(responsePlaces, HttpStatus.OK);
             }else{
                 return handleErors(Messages.BUSINESS_ERROR,errors, HttpStatus.BAD_REQUEST);
             }
@@ -108,6 +107,25 @@ public class PlacesController {
         }
     }
 
+    @RequestMapping(method = RequestMethod.GET, value = "/all")
+    public ResponseEntity<Object> getAll() {
+        CampsiteRequestValidator requestValidator = new CampsitePlaceGetAllRequestValidatorImpl();
+        Place place = new Place();
+        List<String> errors = requestValidator.validate(place);
+        try {
+            if(errors.isEmpty()){
+                Collection<Place> responsePlaces =  manager.manage(VerbStrategy.GETALL, place);
+                return new ResponseEntity<>(responsePlaces, HttpStatus.OK);
+            }else{
+                return handleErors(Messages.BUSINESS_ERROR,errors, HttpStatus.BAD_REQUEST);
+            }
+        } catch (CampsiteException e) {
+            errors.add(e.getMessage());
+            return handleErors(Messages.BUSINESS_ERROR,errors, HttpStatus.BAD_REQUEST);
+        } catch (Exception e){
+            return handleExceptions(e,HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
     protected ResponseEntity<Object> handleExceptions(Exception ex,HttpStatus status) {
         List<String> errors = new ArrayList<>();
         errors.add(ex.getMessage());
